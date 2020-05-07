@@ -16,13 +16,16 @@ def filter_contents(el):
 
 def convert_contents(el):
     pairs = [html_to_discord(i) for i in el.contents]
-    txts, imgs = list(zip(*pairs))
+    try:
+        txts, imgs = list(zip(*pairs))
 
-    final_imgs = []
-    for img in imgs:
-        final_imgs.extend(img)
+        final_imgs = []
+        for img in imgs:
+            final_imgs.extend(img)
 
-    return ''.join(txts), final_imgs
+        return ''.join(txts), final_imgs
+    except:
+        return '', []
 
 def html_to_discord(el):
     # Convert to markdown, eg images and p tags = paragraph
@@ -40,6 +43,12 @@ def html_to_discord(el):
 
     if el.name == 'img':
         return '<IMAGE>', [el['src']]
+    
+    if el.name == 'br':
+        return '\n', []
+
+    if el.name == 'a':
+        return el['href'], []
 
     return convert_contents(el)
 
