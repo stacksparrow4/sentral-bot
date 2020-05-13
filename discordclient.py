@@ -1,8 +1,8 @@
-import discord, sqlite3, asyncio, hashlib
+import discord, sqlite3, asyncio, hashlib, datetime
 from getmessages import get_messages
 
 DELAY = 60*30 # = 30 minutes
-# DELAY = 3
+# DELAY = 5
 
 conn = sqlite3.connect('./database/database.db')
 
@@ -50,6 +50,9 @@ class MyClient(discord.Client):
         if message.author == client.user:
             return
 
+        if message.author.id != 485713672161722379:
+            return
+
         if message.content.startswith('$'):
             command = message.content[1:]
             if command == 'subchannel':
@@ -75,11 +78,22 @@ class MyClient(discord.Client):
                 for msg in msgs:
                     await message.channel.send(embed=self.create_msg_embed(msg))
 
+            elif command == 'issubbed':
+                if len(query("SELECT id FROM channels WHERE id=?", [str(message.channel.id)])) > 0:
+                    await message.channel.send("This channel is subscribed.")
+                else:
+                    await message.channel.send("This channel is not yet subscribed.")
+            
+            elif command == 'logdb':
+                db_content = query("SELECT textcontent FROM messages")
+
+                await message.channel.send('\n-----\n'.join([i[0] for i in db_content]))
+
     async def background_task(self):
         await self.wait_until_ready()
 
         while True:
-            print("YES")
+            print("Checked sentral at ", datetime.datetime.now())
 
             msgs = get_messages()
 
@@ -89,6 +103,8 @@ class MyClient(discord.Client):
                 matches = query("SELECT textcontent FROM messages WHERE textcontent=?", [string_msg])
 
                 if len(matches) == 0:
+                    print('New message:', string_msg[:20])
+
                     subbed_channels = query("SELECT id FROM channels")
 
                     for channel in subbed_channels:

@@ -7,4 +7,4 @@ COPY requirements.txt getmessages.py discordclient.py ./
 
 RUN pip install -r requirements.txt
 
-CMD [ "python", "./discordclient.py" ]
+CMD [ "python", "-u", "./discordclient.py" ]

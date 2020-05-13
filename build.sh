@@ -1,1 +1,1 @@
-docker build -t bot .
+sudo docker build -t bot .
