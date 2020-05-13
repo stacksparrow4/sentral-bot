@@ -57,20 +57,23 @@ def parse_msgs(msgs_container):
 
     messages = []
 
-    for notice in notices:
-        author = strip(''.join(notice.find_all('small', class_='small-caps')[0].strong.contents))
+    try:
+        for notice in notices:
+            author = strip(''.join(notice.find_all('small', class_='small-caps')[0].strong.contents))
 
-        heading, _ = html_to_discord(notice.find_all('h4')[0])
-        body, images = html_to_discord(notice.find_all('div', class_='notice-content')[0])
+            heading, _ = html_to_discord(notice.find_all('h4')[0])
+            body, images = html_to_discord(notice.find_all('div', class_='notice-content')[0])
 
-        messages.append([heading, body, images, author])
-    
-    return messages
+            messages.append([heading, body, images, author])
+        
+        return messages
+    except:
+        return []
 
 def get_messages():
     session = requests.Session()
 
-    with open('./.creds', 'r') as f:
+    with open('./secrets/.creds', 'r') as f:
         username = f.readline().strip()
         password = f.readline().strip()
     

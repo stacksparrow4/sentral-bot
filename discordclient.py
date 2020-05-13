@@ -4,7 +4,7 @@ from getmessages import get_messages
 DELAY = 60*30 # = 30 minutes
 # DELAY = 3
 
-conn = sqlite3.connect('database.db')
+conn = sqlite3.connect('./database/database.db')
 
 c = conn.cursor()
 c.execute('CREATE TABLE IF NOT EXISTS channels (id TEXT UNIQUE)')
@@ -79,6 +79,8 @@ class MyClient(discord.Client):
         await self.wait_until_ready()
 
         while True:
+            print("YES")
+
             msgs = get_messages()
 
             for msg in msgs:
@@ -105,7 +107,7 @@ class MyClient(discord.Client):
 
 
 
-with open('./.token', 'r') as f:
+with open('./secrets/.token', 'r') as f:
     token = f.read()
 
 client = MyClient()
