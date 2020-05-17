@@ -91,33 +91,41 @@ class MyClient(discord.Client):
 
     async def background_task(self):
         await self.wait_until_ready()
+        
+        await asyncio.sleep(10)
 
         while True:
             print("Checked sentral at ", datetime.datetime.now())
 
-            msgs = get_messages()
+            try:
+                msgs = get_messages()
 
-            for msg in msgs:
-                string_msg = gen_msg_string(msg)
+                for msg in msgs:
+                    string_msg = gen_msg_string(msg)
 
-                matches = query("SELECT textcontent FROM messages WHERE textcontent=?", [string_msg])
+                    matches = query("SELECT textcontent FROM messages WHERE textcontent=?", [string_msg])
 
-                if len(matches) == 0:
-                    print('New message:', string_msg[:20])
+                    if len(matches) == 0:
+                        print('New message:', string_msg[:20])
 
-                    subbed_channels = query("SELECT id FROM channels")
+                        subbed_channels = query("SELECT id FROM channels")
 
-                    for channel in subbed_channels:
-                        channel_ref = self.get_channel(int(channel[0]))
+                        for channel in subbed_channels:
+                            channel_ref = self.get_channel(int(channel[0]))
 
-                        await channel_ref.send(embed=self.create_msg_embed(msg))
-            
-            query("DELETE FROM messages")
+                            await channel_ref.send(embed=self.create_msg_embed(msg))
+                
+                query("DELETE FROM messages")
 
-            for msg in msgs:
-                query("INSERT INTO messages VALUES (?)", [gen_msg_string(msg)])
-            
-            conn.commit()
+                for msg in msgs:
+                    query("INSERT INTO messages VALUES (?)", [gen_msg_string(msg)])
+                
+                conn.commit()
+                
+            except Exception as e:
+                print("--- RECIEVED ERROR! ---")
+                print(e)
+                print()
             
             await asyncio.sleep(DELAY)
 

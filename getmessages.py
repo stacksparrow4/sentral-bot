@@ -96,6 +96,8 @@ def get_messages():
             if children[i].contents[0] == 'Daily Notices':
                 # This element is the header, the next one will contain the notices.
                 return parse_msgs(children[i+1])
+    
+    return []
 
 if __name__ == '__main__':
     print(get_messages())
