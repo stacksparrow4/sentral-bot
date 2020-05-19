@@ -99,7 +99,13 @@ class MyClient(discord.Client):
 
             try:
                 msgs = get_messages()
+                
+            except Exception as e:
+                print("--- RECIEVED ERROR GETTING MESSAGES! ---")
+                print(e)
+                print()
 
+            try:
                 for msg in msgs:
                     string_msg = gen_msg_string(msg)
 
@@ -111,19 +117,27 @@ class MyClient(discord.Client):
                         subbed_channels = query("SELECT id FROM channels")
 
                         for channel in subbed_channels:
-                            channel_ref = self.get_channel(int(channel[0]))
+                            try:
+                                channel_ref = self.get_channel(int(channel[0]))
 
-                            await channel_ref.send(embed=self.create_msg_embed(msg))
-                
+                                await channel_ref.send(embed=self.create_msg_embed(msg))
+                            except Exception as e:
+                                print("--- Recieved exception for channel {}! ---".format(channel), e)
+            except Exception as e:
+                print("--- RECIEVED ERROR DISTRIBUTING MESSAGES! ---")
+                print(e)
+                print()
+
+            
+            try:
                 query("DELETE FROM messages")
 
                 for msg in msgs:
                     query("INSERT INTO messages VALUES (?)", [gen_msg_string(msg)])
                 
                 conn.commit()
-                
             except Exception as e:
-                print("--- RECIEVED ERROR! ---")
+                print("--- RECIEVED ERROR IN DB CODE! ---")
                 print(e)
                 print()
             
