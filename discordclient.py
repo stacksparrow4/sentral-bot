@@ -8,14 +8,17 @@ conn = sqlite3.connect('./database/database.db')
 
 c = conn.cursor()
 c.execute('CREATE TABLE IF NOT EXISTS channels (id TEXT UNIQUE)')
-c.execute('CREATE TABLE IF NOT EXISTS messages (textcontent TEXT UNIQUE)')
+c.execute('CREATE TABLE IF NOT EXISTS messagehashes (hash TEXT UNIQUE)')
 conn.commit()
+
+def shahash(s):
+    m = hashlib.sha256()
+    m.update(s.encode())
+    return m.hexdigest()
 
 def generate_color(author):
     # For fun, generate a colour seeded by the author, so each author will have the same colour.
-    m = hashlib.sha256()
-    m.update(author.encode())
-    return int(m.hexdigest(), 16) % 0xffffff
+    return int(shahash(author), 16) % 0xffffff
 
 def gen_msg_string(msg):
     return msg[0]+msg[1]+''.join(msg[2])+msg[3]
@@ -24,6 +27,19 @@ def query(*args):
     c = conn.cursor()
     c.execute(*args)
     return c.fetchall()
+
+# Update db version
+if query('SELECT name FROM sqlite_master WHERE type="table" AND name="messages"'):
+    textcontents = query('SELECT textcontent FROM messages')
+
+    for row in textcontents:
+        txt = row[0]
+        hashed = shahash(txt)
+        query('INSERT INTO messagehashes VALUES (?)', [hashed])
+    
+    query('DROP TABLE messages')
+
+    conn.commit()
 
 class MyClient(discord.Client):
     def __init__(self):
@@ -85,9 +101,9 @@ class MyClient(discord.Client):
                     await message.channel.send("This channel is not yet subscribed.")
             
             elif command == 'logdb':
-                db_content = query("SELECT textcontent FROM messages")
+                db_content = query("SELECT hash FROM messagehashes")
 
-                await message.channel.send('\n-----\n'.join([i[0] for i in db_content]))
+                await message.channel.send('\n'.join([i[0] for i in db_content]))
 
     async def background_task(self):
         await self.wait_until_ready()
@@ -108,8 +124,9 @@ class MyClient(discord.Client):
             try:
                 for msg in msgs:
                     string_msg = gen_msg_string(msg)
+                    hashed_msg = shahash(string_msg)
 
-                    matches = query("SELECT textcontent FROM messages WHERE textcontent=?", [string_msg])
+                    matches = query("SELECT hash FROM messagehashes WHERE hash=?", [hashed_msg])
 
                     if len(matches) == 0:
                         print('New message:', string_msg[:20])
@@ -123,24 +140,21 @@ class MyClient(discord.Client):
                                 await channel_ref.send(embed=self.create_msg_embed(msg))
                             except Exception as e:
                                 print("--- Recieved exception for channel {}! ---".format(channel), e)
+                        
+                        try:
+                            query("INSERT INTO messagehashes VALUES (?)", [hashed_msg])
+                        except:
+                            print("--- RECIEVED ERROR SENDING HASH TO DB! ---")
+                            print(e)
+                            print()
+
             except Exception as e:
                 print("--- RECIEVED ERROR DISTRIBUTING MESSAGES! ---")
                 print(e)
                 print()
 
-            
-            try:
-                query("DELETE FROM messages")
+            conn.commit()
 
-                for msg in msgs:
-                    query("INSERT INTO messages VALUES (?)", [gen_msg_string(msg)])
-                
-                conn.commit()
-            except Exception as e:
-                print("--- RECIEVED ERROR IN DB CODE! ---")
-                print(e)
-                print()
-            
             await asyncio.sleep(DELAY)
 
 

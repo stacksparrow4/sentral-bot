@@ -1,0 +1,1 @@
+scp Dockerfile build.sh run.sh discordclient.py getmessages.py requirements.txt pi:~/sentralbot
