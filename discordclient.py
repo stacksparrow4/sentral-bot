@@ -41,6 +41,11 @@ if query('SELECT name FROM sqlite_master WHERE type="table" AND name="messages"'
 
     conn.commit()
 
+def clip_string(s):
+    if len(s) >= 1020:
+        return s[:1020] + '...'
+    return s
+
 class MyClient(discord.Client):
     def __init__(self):
         super().__init__()
@@ -54,7 +59,7 @@ class MyClient(discord.Client):
         title, body, imgs, author = msg
 
         embed = discord.Embed(title=title, color=generate_color(author))
-        embed.add_field(name="Body", value=body, inline=False)
+        embed.add_field(name="Body", value=clip_string(body), inline=False)
         embed.set_author(name=author)
 
         if len(imgs) > 0:
