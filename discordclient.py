@@ -61,9 +61,6 @@ class MyClient(discord.Client):
         embed = discord.Embed(title=title, color=generate_color(author))
         embed.add_field(name="Body", value=clip_string(body), inline=False)
         embed.set_author(name=author)
-
-        if len(imgs) > 0:
-            embed.set_image(url=imgs[0])
         
         return embed
 
