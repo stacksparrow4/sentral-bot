@@ -59,7 +59,11 @@ class MyClient(discord.Client):
         title, body, imgs, author = msg
 
         embed = discord.Embed(title=title, color=generate_color(author))
-        embed.add_field(name="Body", value=clip_string(body), inline=False)
+
+        clipped_body = clip_string(body)
+        if clipped_body:
+            embed.add_field(name="Body", value=clipped_body, inline=False)
+
         embed.set_author(name=author)
         
         return embed

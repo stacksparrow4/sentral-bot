@@ -50,6 +50,10 @@ def html_to_discord(el):
     if el.name == 'a':
         return el['href'], []
 
+    if el.name == 'tr':
+        txt, imgs = convert_contents(el)
+        return strip(txt) + '\n', []
+
     return convert_contents(el)
 
 def parse_msgs(msgs_container):
@@ -67,7 +71,10 @@ def parse_msgs(msgs_container):
             messages.append([heading, body, images, author])
         
         return messages
-    except:
+    except Exception as e:
+        print("Recieved error reading sentral")
+        print(e)
+
         return []
 
 def get_messages():
@@ -85,6 +92,8 @@ def get_messages():
 
     resp_text = session.get("https://web3.girraween-h.schools.nsw.edu.au/portal/dashboard").text
 
+    session.get("https://web3.girraween-h.schools.nsw.edu.au/portal/logout")
+
     soup = BeautifulSoup(resp_text, 'html.parser')
 
     span_9s = soup.find_all('div', class_="span9")
@@ -96,6 +105,8 @@ def get_messages():
             if children[i].contents[0] == 'Daily Notices':
                 # This element is the header, the next one will contain the notices.
                 return parse_msgs(children[i+1])
+    
+    print("Didn't find the daily notices; did something go wrong?")
     
     return []
 
