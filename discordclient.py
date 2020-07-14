@@ -97,8 +97,11 @@ class MyClient(discord.Client):
             elif command == 'logmessages':
                 msgs = get_messages()
 
-                for msg in msgs:
-                    await message.channel.send(embed=self.create_msg_embed(msg))
+                if len(msgs) == 0:
+                    await message.channel.send("There are no messages currently.")
+                else:
+                    for msg in msgs:
+                        await message.channel.send(embed=self.create_msg_embed(msg))
 
             elif command == 'issubbed':
                 if len(query("SELECT id FROM channels WHERE id=?", [str(message.channel.id)])) > 0:

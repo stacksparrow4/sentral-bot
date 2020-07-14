@@ -63,12 +63,13 @@ def parse_msgs(msgs_container):
 
     try:
         for notice in notices:
-            author = strip(''.join(notice.find_all('small', class_='small-caps')[0].strong.contents))
+            if not ("No daily notices recorded for today. Please check back later." in str(notice)):
+                author = strip(''.join(notice.find_all('small', class_='small-caps')[0].strong.contents))
 
-            heading, _ = html_to_discord(notice.find_all('h4')[0])
-            body, images = html_to_discord(notice.find_all('div', class_='notice-content')[0])
+                heading, _ = html_to_discord(notice.find_all('h4')[0])
+                body, images = html_to_discord(notice.find_all('div', class_='notice-content')[0])
 
-            messages.append([heading, body, images, author])
+                messages.append([heading, body, images, author])
         
         return messages
     except Exception as e:
