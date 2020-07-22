@@ -48,7 +48,11 @@ def html_to_discord(el):
         return '\n', []
 
     if el.name == 'a':
-        return el['href'], []
+        if 'href' in el:
+            return el['href'], []
+        else:
+            txt, imgs = convert_contents(el)
+            return strip(txt), imgs
 
     if el.name == 'tr':
         txt, imgs = convert_contents(el)
