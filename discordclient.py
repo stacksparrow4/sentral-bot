@@ -72,7 +72,7 @@ class MyClient(discord.Client):
         if message.author == client.user:
             return
 
-        if message.author.id != 485713672161722379:
+        if message.author.id != 485713672161722379 and message.author.id != 232767987843727361:
             return
 
         if message.content.startswith('$'):
