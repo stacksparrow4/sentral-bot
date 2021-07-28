@@ -29,6 +29,7 @@ A bot that can send sentral notifications to specified discord channels.
   if message.author.id != ENTER_YOUR_USER_ID_HERE:
   ```
   This ensures only you can use this bot
+  
 13. In the terminal type `./build.sh`
 14. Then type `./run.sh`
 15. If you want the bot to start automatically when the system reboots, type `sudo systemctl enable docker`
