@@ -28,7 +28,8 @@ A bot that can send sentral notifications to specified discord channels.
   ```python
   if message.author.id != ENTER_YOUR_USER_ID_HERE:
   ```
-  This ensures only you can use this bot
+  This ensures only you can use this bot.
+  (Also, depending on which school you are in, you may need to change all occurances of https://web3.girraween-h.schools.nsw.edu.au/ in getmessages.py)
   
 13. In the terminal type `./build.sh`
 14. Then type `./run.sh`
